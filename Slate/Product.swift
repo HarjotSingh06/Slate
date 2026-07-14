@@ -1,5 +1,5 @@
 //
-//  Item.swift
+//  Product.swift
 //  Slate
 //
 //  Created by Harjot Singh on 08/05/2026.
@@ -18,5 +18,17 @@ class Product {
         self.name = name
         self.price = price
         self.quantity = quantity
+    }
+    
+    // This MUST sit inside the class brackets to access the `name` property!
+    var iconName: String {
+        let lowerName = name.lowercased()
+        if lowerName.contains("shoe") || lowerName.contains("boot") || lowerName.contains("trainer") {
+            return "shoe"
+        } else if lowerName.contains("pant") || lowerName.contains("trouser") || lowerName.contains("jean") {
+            return "hanger" // Universally supported clothing icon!
+        } else {
+            return "tshirt"
+        }
     }
 }

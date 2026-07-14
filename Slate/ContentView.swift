@@ -10,28 +10,27 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var viewModel: ItemViewModel?
-    @State private var showCheckoutLogin = false // Controls the sheet presentation
+    // Switched to ProductViewModel to unify your shopping cart state!
+    @State private var viewModel: ProductViewModel?
+    @State private var showCheckoutLogin = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 List {
-                    if let vm = viewModel, !vm.items.isEmpty {
-                        ForEach(vm.items) { product in
-                            HStack {
-                                Image(systemName: "tshirt")
-                                    .padding()
-                                    .background(Color.gray.opacity(0.1))
-                                    .cornerRadius(8)
-                                
-                                VStack(alignment: .leading) {
-                                    Text(product.name).font(.headline)
-                                    Text("£\(product.price, specifier: "%.2f")").font(.subheadline).foregroundColor(.secondary)
+                    if let vm = viewModel, !vm.products.isEmpty {
+                        ForEach(vm.products) { product in
+                            // Insert our gorgeous interactive ProductRow!
+                            ProductRow(
+                                product: product,
+                                quantity: product.quantity,
+                                onIncrement: {
+                                    vm.incrementQuantity(for: product)
+                                },
+                                onDecrement: {
+                                    vm.decrementQuantity(for: product)
                                 }
-                                Spacer()
-                                Text("x\(product.quantity)").fontWeight(.semibold)
-                            }
+                            )
                         }
                         .onDelete(perform: vm.deleteProduct)
                     } else {
@@ -46,20 +45,21 @@ struct ContentView: View {
             }
             .navigationTitle("Basket")
             .safeAreaInset(edge: .bottom) {
-                if let vm = viewModel, !vm.items.isEmpty {
+                if let vm = viewModel, !vm.products.isEmpty {
                     VStack(spacing: 12) {
                         Divider()
                         HStack {
                             Text("Total:").font(.headline)
                             Spacer()
-                            Text("£\(vm.items.reduce(0) { $0 + ($1.price * Double($1.quantity)) }, specifier: "%.2f")")
+                            // Uses our clean computed basketTotal property from the ViewModel!
+                            Text("£\(vm.basketTotal, specifier: "%.2f")")
                                 .font(.title2)
                                 .bold()
                         }
                         .padding(.horizontal)
                         
                         Button(action: {
-                            showCheckoutLogin = true // Trigger the login view modal
+                            showCheckoutLogin = true
                         }) {
                             Text("CHECKOUT")
                                 .frame(maxWidth: .infinity)
@@ -67,6 +67,7 @@ struct ContentView: View {
                                 .background(Color.pink)
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
+                                .fontWeight(.bold)
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 8)
@@ -74,16 +75,17 @@ struct ContentView: View {
                     .background(.background)
                 }
             }
-            // Present the modern Login/WIP screen as a modal sheet
-            .sheet(isPresented: $showCheckoutLogin) { // Fixed: Changed '&' to '$'
-                CheckoutLoginView()
-            }
+            .sheet(isPresented: $showCheckoutLogin) {
+                            CheckoutLoginView(onCheckoutComplete: {
+                                viewModel?.clearBasket() // Empties SwiftData when checkout succeeds!
+                            })
+                }
         }
         .onAppear {
             if viewModel == nil {
-                viewModel = ItemViewModel(modelContext: modelContext)
+                viewModel = ProductViewModel(modelContext: modelContext)
             } else {
-                viewModel?.fetchLocalItems()
+                viewModel?.fetchProducts()
             }
         }
     }
