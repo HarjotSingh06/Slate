@@ -7,14 +7,17 @@
 
 import SwiftUI
 import SwiftData
+import Combine
 
 @main
 struct SlateApp: App {
-    // Keep your sharedModelContainer as is
-    
+    // Instantiate the global application coordinator
+    @StateObject private var coordinator = NavigationCoordinator()
+
     var body: some Scene {
         WindowGroup {
-            MainTabView() // Change this from ContentView()
+            MainTabView()
+                .environmentObject(coordinator) // Injects it down the entire view hierarchy
                 .modelContainer(for: Product.self)
         }
     }
