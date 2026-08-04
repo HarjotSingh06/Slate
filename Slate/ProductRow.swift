@@ -17,18 +17,19 @@ struct ProductRow: View {
     private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
     
     var body: some View {
-        HStack(spacing: 12) {
-            // 1. Product Image (Fixed size so it never gets squished)
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.15))
-                .frame(width: 50, height: 50)
-                .overlay(
-                    Image(systemName: product.iconName)
-                        .font(.body)
-                        .foregroundColor(.primary)
-                )
+        HStack(spacing: 16) { // Increased spacing slightly for better visual separation
+            // 1. Product Image - Switched to a standard frame with fixed dimensions
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.15))
+                
+                Image(systemName: product.iconName)
+                    .font(.system(size: 20))
+                    .foregroundColor(.primary)
+            }
+            .frame(width: 50, height: 50) // Strictly bounds the ZStack container
             
-            // 2. Product Info (Layout priority makes sure this gets space first)
+            // 2. Product Info - Wrapped text in a fixed-width-friendly structure
             VStack(alignment: .leading, spacing: 4) {
                 Text(product.name)
                     .font(.system(size: 16, weight: .semibold))
@@ -39,11 +40,9 @@ struct ProductRow: View {
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
             }
-            .layoutPriority(1) // CRITICAL: Ensures text gets priority over spacer/stepper
+            .frame(maxWidth: .infinity, alignment: .leading) // Forces text to claim all available left-side space
             
-            Spacer()
-            
-            // 3. Stepper Control (Pushed cleanly to the right side)
+            // 3. Stepper Control
             HStack(spacing: 12) {
                 Button(action: {
                     impactFeedback.impactOccurred()
@@ -56,7 +55,7 @@ struct ProductRow: View {
                 
                 Text("\(quantity)")
                     .font(.headline)
-                    .frame(minWidth: 24)
+                    .frame(width: 24) // Replaced minWidth with fixed width to prevent shifting
                     .multilineTextAlignment(.center)
                 
                 Button(action: {
@@ -70,6 +69,7 @@ struct ProductRow: View {
             }
             .foregroundColor(.blue)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
+        .contentShape(Rectangle()) // Ensures the whole row block behaves correctly under List selection
     }
 }

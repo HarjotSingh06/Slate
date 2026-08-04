@@ -9,60 +9,119 @@ import SwiftUI
 
 struct CheckoutLoginView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var showSuccessScreen = false // Toggles the checkout success screen
+    @State private var showSuccessScreen = false
+    @State private var isProcessing = false // Triggers a mock processing/spinner phase
     
-    // Callback to empty the basket in the parent view
     var onCheckoutComplete: () -> Void
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: 28) {
                 Spacer()
                 
-                // Keep your gorgeous custom Header
-                Image(systemName: "lock.shield")
-                    .font(.system(size: 72))
-                    .foregroundColor(.pink)
+                // Security Icon & Header
+                VStack(spacing: 12) {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(.pink)
+                    
+                    Text("Secure Checkout")
+                        .font(.title2)
+                        .bold()
+                    
+                    Text("Authenticate with your device biometric credential to finalize your secure transaction.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
                 
-                Text("Secure Checkout")
-                    .font(.title)
-                    .bold()
+                Spacer()
                 
-                // Interactive guest checkout buttons
+                // Active Checkout Action Area
                 VStack(spacing: 16) {
-                    Button(action: {
-                        // 1. Clear the basket database
-                        onCheckoutComplete()
-                        // 2. Trigger success overlay sheet
-                        showSuccessScreen = true
-                    }) {
-                        Text("Checkout as Guest")
-                            .font(.headline)
+                    if isProcessing {
+                        // High-fidelity loading state
+                        ProgressView()
+                            .scaleEffect(1.3)
+                            .tint(.pink)
+                            .frame(height: 56)
+                    } else {
+                        // One-Click Biometric Checkout Button
+                        Button(action: {
+                            handleBiometricCheckout()
+                        }) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "faceid")
+                                    .font(.title3)
+                                Text("Pay with Face ID")
+                                    .fontWeight(.bold)
+                            }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding()
+                            .frame(height: 56)
                             .background(Color.pink)
-                            .cornerRadius(12)
-                    }
-                    
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Text("Cancel")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
+                            .cornerRadius(14)
+                            .shadow(color: Color.pink.opacity(0.3), radius: 8, x: 0, y: 4)
+                        }
+                        
+                        // Guest Fallback Button
+                        Button(action: {
+                            handleManualCheckout()
+                        }) {
+                            Text("Checkout manually as Guest")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.top, 4)
                     }
                 }
                 .padding(.horizontal, 24)
-                
-                Spacer()
+                .padding(.bottom, 24)
             }
-            // Presents the Order Success screen over the login sheet seamlessly!
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
             .fullScreenCover(isPresented: $showSuccessScreen) {
                 OrderSuccessView(onDismiss: {
-                    dismiss() // Dismisses this login screen too, returning back to the Shop tab!
+                    dismiss()
                 })
             }
+        }
+    }
+    
+    private func handleBiometricCheckout() {
+        // Trigger haptic rumble
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        
+        BiometricManager.shared.authenticateUser { success in
+            if success {
+                isProcessing = true
+                generator.notificationOccurred(.success)
+                
+                // Simulate a 1-second background transaction confirmation
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                    isProcessing = false
+                    onCheckoutComplete()
+                    showSuccessScreen = true
+                }
+            } else {
+                // If FaceID fails or isn't enabled (e.g. on your Simulator), fall back directly to manual guest checkout so your demo doesn't get stuck!
+                handleManualCheckout()
+            }
+        }
+    }
+    
+    private func handleManualCheckout() {
+        isProcessing = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            isProcessing = false
+            onCheckoutComplete()
+            showSuccessScreen = true
         }
     }
 }
