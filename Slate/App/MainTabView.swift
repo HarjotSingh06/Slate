@@ -32,6 +32,10 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Orders", systemImage: "clock.fill")
                 }
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
         }
     }
 }

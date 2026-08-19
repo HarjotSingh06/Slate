@@ -15,6 +15,6 @@ struct SlateApp: App {
         WindowGroup {
             MainTabView()
         }
-        .modelContainer(for: [Product.self, Order.self])
+        .modelContainer(for: [Product.self, Order.self, UserProfile.self])
     }
 }
