@@ -84,13 +84,18 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showCheckoutLogin) {
                 CheckoutLoginView(onCheckoutComplete: {
-                    // 1. Clear SwiftData immediately upon checkout completion
+                    // Save to Order History
+                    let refNumber = "#SL-\(Int.random(in: 100000...999999))"
+                    let totalItems = products.reduce(0) { $0 + $1.quantity }
+                    let newOrder = Order(orderReference: refNumber, totalAmount: basketTotal, itemCount: totalItems)
+                    modelContext.insert(newOrder)
+
+                    // Clear Basket
                     for product in products {
                         modelContext.delete(product)
                     }
                     try? modelContext.save()
-                    
-                    // 2. Transition screens
+
                     showCheckoutLogin = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         showSuccessScreen = true

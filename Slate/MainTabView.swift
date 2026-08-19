@@ -1,14 +1,14 @@
 //
 //  MainTabView.swift
+//
+//  MainTabView.swift
 //  Slate
 //
-//  Created by Harjot Singh on 14/05/2026.
-//
+
 import SwiftUI
 import SwiftData
 
 struct MainTabView: View {
-    // Fetch live products directly from SwiftData so badge updates instantaneously
     @Query private var products: [Product]
 
     var totalItemsCount: Int {
@@ -26,7 +26,12 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Basket", systemImage: "cart.fill")
                 }
-                .badge(totalItemsCount > 0 ? totalItemsCount : 0)
+                .badge(totalItemsCount > 0 ? totalItemsCount : 0) // Attached to Basket tab
+
+            OrderHistoryView()
+                .tabItem {
+                    Label("Orders", systemImage: "clock.fill")
+                }
         }
     }
 }
