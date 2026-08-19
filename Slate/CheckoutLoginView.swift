@@ -1,15 +1,10 @@
-//
 //  CheckoutLoginView.swift
 //  Slate
-//
-//  Created by Harjot Singh on 14/07/2026.
-//
 
 import SwiftUI
 
 struct CheckoutLoginView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var showSuccessScreen = false
     @State private var isProcessing = false // Triggers a mock processing/spinner phase
     
     var onCheckoutComplete: () -> Void
@@ -41,13 +36,11 @@ struct CheckoutLoginView: View {
                 // Active Checkout Action Area
                 VStack(spacing: 16) {
                     if isProcessing {
-                        // High-fidelity loading state
                         ProgressView()
                             .scaleEffect(1.3)
                             .tint(.pink)
                             .frame(height: 56)
                     } else {
-                        // One-Click Biometric Checkout Button
                         Button(action: {
                             handleBiometricCheckout()
                         }) {
@@ -65,7 +58,6 @@ struct CheckoutLoginView: View {
                             .shadow(color: Color.pink.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         
-                        // Guest Fallback Button
                         Button(action: {
                             handleManualCheckout()
                         }) {
@@ -85,32 +77,32 @@ struct CheckoutLoginView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-            .fullScreenCover(isPresented: $showSuccessScreen) {
-                OrderSuccessView(onDismiss: {
-                    dismiss()
-                })
-            }
         }
     }
     
     private func handleBiometricCheckout() {
-        // Trigger haptic rumble
         let generator = UINotificationFeedbackGenerator()
         generator.prepare()
         
-        BiometricManager.shared.authenticateUser { success in
-            if success {
-                isProcessing = true
-                generator.notificationOccurred(.success)
-                
-                // Simulate a 1-second background transaction confirmation
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                    isProcessing = false
-                    onCheckoutComplete()
-                    showSuccessScreen = true
+        BiometricManager.shared.authenticateUser { result in
+            switch result {
+            case .success(let isSuccess):
+                if isSuccess {
+                    isProcessing = true
+                    generator.notificationOccurred(.success)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                        isProcessing = false
+                        dismiss()
+                        onCheckoutComplete()
+                    }
+                } else {
+                    handleManualCheckout()
                 }
-            } else {
-                // If FaceID fails or isn't enabled (e.g. on your Simulator), fall back directly to manual guest checkout so your demo doesn't get stuck!
+                
+            case .failure(let error):
+                // Fall back to manual guest checkout on error or user cancellation
+                print("Biometric authentication failed: \(error.localizedDescription)")
                 handleManualCheckout()
             }
         }
@@ -120,8 +112,8 @@ struct CheckoutLoginView: View {
         isProcessing = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
             isProcessing = false
+            dismiss()
             onCheckoutComplete()
-            showSuccessScreen = true
         }
     }
 }

@@ -2,57 +2,63 @@
 //  ContentView.swift
 //  Slate
 //
-//  Created by Harjot Singh on 08/05/2026.
-//
 
 import SwiftUI
 import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    // Switched to ProductViewModel to unify your shopping cart state!
+    @Query private var products: [Product]
     @State private var viewModel: ProductViewModel?
+    
+    // Checkout sheet navigation states
     @State private var showCheckoutLogin = false
+    @State private var showSuccessScreen = false
+
+    var basketTotal: Double {
+        products.reduce(0) { $0 + ($1.price * Double($1.quantity)) }
+    }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                List {
-                    if let vm = viewModel, !vm.products.isEmpty {
-                        ForEach(vm.products) { product in
-                            // Insert our gorgeous interactive ProductRow!
+            Group {
+                if products.isEmpty {
+                    ContentUnavailableView(
+                        "Your Basket is Empty",
+                        systemImage: "cart",
+                        description: Text("Start adding some clothes from the Shop!")
+                    )
+                } else {
+                    List {
+                        ForEach(products) { product in
                             ProductRow(
                                 product: product,
                                 quantity: product.quantity,
                                 onIncrement: {
-                                    vm.incrementQuantity(for: product)
+                                    viewModel?.incrementQuantity(for: product)
                                 },
                                 onDecrement: {
-                                    vm.decrementQuantity(for: product)
+                                    viewModel?.decrementQuantity(for: product)
                                 }
                             )
                         }
-                        .onDelete(perform: vm.deleteProduct)
-                    } else {
-                        ContentUnavailableView(
-                            "Your Basket is Empty",
-                            systemImage: "cart",
-                            description: Text("Start adding some clothes from the Shop!")
-                        )
+                        .onDelete { indexSet in
+                            viewModel?.deleteProduct(at: indexSet)
+                        }
                     }
+                    .listStyle(.plain)
                 }
-                .listStyle(.plain)
             }
             .navigationTitle("Basket")
             .safeAreaInset(edge: .bottom) {
-                if let vm = viewModel, !vm.products.isEmpty {
+                if !products.isEmpty {
                     VStack(spacing: 12) {
                         Divider()
+                        
                         HStack {
                             Text("Total:").font(.headline)
                             Spacer()
-                            // Uses our clean computed basketTotal property from the ViewModel!
-                            Text("£\(vm.basketTotal, specifier: "%.2f")")
+                            Text("£\(basketTotal, specifier: "%.2f")")
                                 .font(.title2)
                                 .bold()
                         }
@@ -62,12 +68,13 @@ struct ContentView: View {
                             showCheckoutLogin = true
                         }) {
                             Text("CHECKOUT")
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.pink)
+                                .font(.headline)
+                                .bold()
                                 .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color.pink)
                                 .cornerRadius(10)
-                                .fontWeight(.bold)
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 8)
@@ -76,16 +83,29 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showCheckoutLogin) {
-                            CheckoutLoginView(onCheckoutComplete: {
-                                viewModel?.clearBasket() // Empties SwiftData when checkout succeeds!
-                            })
-                }
+                CheckoutLoginView(onCheckoutComplete: {
+                    // 1. Clear SwiftData immediately upon checkout completion
+                    for product in products {
+                        modelContext.delete(product)
+                    }
+                    try? modelContext.save()
+                    
+                    // 2. Transition screens
+                    showCheckoutLogin = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        showSuccessScreen = true
+                    }
+                })
+            }
+            .fullScreenCover(isPresented: $showSuccessScreen) {
+                OrderSuccessView(onDismiss: {
+                    showSuccessScreen = false
+                })
+            }
         }
         .onAppear {
             if viewModel == nil {
                 viewModel = ProductViewModel(modelContext: modelContext)
-            } else {
-                viewModel?.fetchProducts()
             }
         }
     }
