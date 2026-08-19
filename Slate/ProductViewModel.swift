@@ -68,8 +68,13 @@ class ProductViewModel {
         for product in products {
             modelContext.delete(product)
         }
-        try? modelContext.save()
-        fetchProducts()
+        
+        do {
+            try modelContext.save()
+            products.removeAll()
+        } catch {
+            print("Error saving context after clearing basket: \(error)")
+        }
     }
 }
 
