@@ -1,3 +1,8 @@
+//
+//  CatalogueView.swift
+//  Slate
+//
+
 import SwiftUI
 import SwiftData
 
@@ -66,8 +71,6 @@ struct CatalogueView: View {
                                 }
                                 .buttonStyle(.borderedProminent)
                                 .tint(.pink)
-                                // Prevents the button tap from opening the NavigationLink destination
-                                .buttonStyle(BorderlessButtonStyle())
                             }
                             .padding()
                             .background(
@@ -75,6 +78,9 @@ struct CatalogueView: View {
                                     .stroke(Color.gray.opacity(0.2))
                             )
                         }
+                        // Applying BorderlessButtonStyle to the parent card prevents
+                        // tapping 'Add to Basket' from firing the NavigationLink
+                        .buttonStyle(BorderlessButtonStyle())
                     }
                 }
                 .padding()
