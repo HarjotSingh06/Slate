@@ -9,7 +9,7 @@ import SwiftData
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var theme: ConfigManager // 1. Added Theme Manager
+    @EnvironmentObject private var theme: ConfigManager
     
     @Query private var profiles: [UserProfile]
     
@@ -46,13 +46,13 @@ struct ProfileView: View {
                     VStack(spacing: 8) {
                         ZStack {
                             Circle()
-                                .fill(theme.primaryColor.opacity(0.15)) // 2. Dynamic Accent Color
+                                .fill(theme.primaryColor.opacity(0.15))
                                 .frame(width: 72, height: 72)
                             
                             Text(fullName.isEmpty ? "SL" : initials)
                                 .font(.title2)
                                 .bold()
-                                .foregroundColor(theme.primaryColor) // 2. Dynamic Accent Color
+                                .foregroundColor(theme.primaryColor)
                         }
                         
                         Text(fullName.isEmpty ? "Your Name" : fullName)
@@ -66,6 +66,16 @@ struct ProfileView: View {
                     .padding(.vertical, 8)
                 }
                 .listRowBackground(Color.clear)
+
+                // White Label Theme Picker
+                Section("White Label Theme") {
+                    Picker("Active Client", selection: $theme.selectedBrand) {
+                        ForEach(ClientBrand.allCases) { brand in
+                            Text(brand.rawValue).tag(brand)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
 
                 // Personal Details
                 Section("Personal Details") {
@@ -89,7 +99,7 @@ struct ProfileView: View {
                         Text(isProfileSaved ? "Update Profile" : "Save Profile")
                             .bold()
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .foregroundColor(theme.primaryColor) // 2. Dynamic Accent Color
+                            .foregroundColor(theme.primaryColor)
                     }
                 }
                 
@@ -103,7 +113,7 @@ struct ProfileView: View {
                     }
                 }
                 
-                // Sign Out Section (Only visible when a profile is saved)
+                // Sign Out Section
                 if isProfileSaved {
                     Section {
                         Button(action: { showSignOutAlert = true }) {
@@ -164,12 +174,10 @@ struct ProfileView: View {
     }
 
     private func signOut() {
-        // 1. Clear saved user profile
         if let profile = activeProfile {
             modelContext.delete(profile)
         }
         
-        // 2. Clear all items from Basket and Order History
         do {
             let fetchProducts = FetchDescriptor<Product>()
             let products = try modelContext.fetch(fetchProducts)
@@ -188,7 +196,6 @@ struct ProfileView: View {
             print("Failed to clear data on sign out: \(error)")
         }
         
-        // 3. Reset form text fields
         fullName = ""
         email = ""
         addressLine1 = ""
