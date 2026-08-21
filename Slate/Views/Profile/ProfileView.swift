@@ -166,12 +166,23 @@ struct ProfileView: View {
             modelContext.delete(profile)
         }
         
-        // 2. Clear all items from the basket
+        // 2. Clear all items from Basket and Order History
         do {
-            try modelContext.delete(model: Product.self)
+            let fetchProducts = FetchDescriptor<Product>()
+            let products = try modelContext.fetch(fetchProducts)
+            for product in products {
+                modelContext.delete(product)
+            }
+            
+            let fetchOrders = FetchDescriptor<Order>()
+            let orders = try modelContext.fetch(fetchOrders)
+            for order in orders {
+                modelContext.delete(order)
+            }
+            
             try modelContext.save()
         } catch {
-            print("Failed to clear basket on sign out: \(error)")
+            print("Failed to clear data on sign out: \(error)")
         }
         
         // 3. Reset form text fields

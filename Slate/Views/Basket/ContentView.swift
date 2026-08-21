@@ -9,9 +9,8 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var products: [Product]
-    @State private var viewModel: ProductViewModel?
+    @Query private var profiles: [UserProfile]
     
-    // Checkout sheet navigation states
     @State private var showCheckoutLogin = false
     @State private var showSuccessScreen = false
 
@@ -21,7 +20,7 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
+            VStack {
                 if products.isEmpty {
                     ContentUnavailableView(
                         "Your Basket is Empty",
@@ -35,38 +34,35 @@ struct ContentView: View {
                                 product: product,
                                 quantity: product.quantity,
                                 onIncrement: {
-                                    viewModel?.incrementQuantity(for: product)
+                                    product.quantity += 1
+                                    try? modelContext.save()
                                 },
                                 onDecrement: {
-                                    viewModel?.decrementQuantity(for: product)
+                                    if product.quantity > 1 {
+                                        product.quantity -= 1
+                                    } else {
+                                        modelContext.delete(product)
+                                    }
+                                    try? modelContext.save()
                                 }
                             )
                         }
-                        .onDelete { indexSet in
-                            viewModel?.deleteProduct(at: indexSet)
-                        }
+                        .onDelete(perform: deleteProducts)
                     }
                     .listStyle(.plain)
-                }
-            }
-            .navigationTitle("Basket")
-            .safeAreaInset(edge: .bottom) {
-                if !products.isEmpty {
+
                     VStack(spacing: 12) {
-                        Divider()
-                        
                         HStack {
-                            Text("Total:").font(.headline)
+                            Text("Total:")
+                                .font(.headline)
                             Spacer()
                             Text("£\(basketTotal, specifier: "%.2f")")
                                 .font(.title2)
                                 .bold()
                         }
                         .padding(.horizontal)
-                        
-                        Button(action: {
-                            showCheckoutLogin = true
-                        }) {
+
+                        Button(action: { showCheckoutLogin = true }) {
                             Text("CHECKOUT")
                                 .font(.headline)
                                 .bold()
@@ -82,15 +78,19 @@ struct ContentView: View {
                     .background(.background)
                 }
             }
+            .navigationTitle("Basket")
             .sheet(isPresented: $showCheckoutLogin) {
                 CheckoutLoginView(onCheckoutComplete: {
-                    // Save to Order History
                     let refNumber = "#SL-\(Int.random(in: 100000...999999))"
                     let totalItems = products.reduce(0) { $0 + $1.quantity }
-                    let newOrder = Order(orderReference: refNumber, totalAmount: basketTotal, itemCount: totalItems)
-                    modelContext.insert(newOrder)
 
-                    // Clear Basket
+                    // Save to Order History ONLY if user profile exists
+                    if !profiles.isEmpty {
+                        let newOrder = Order(orderReference: refNumber, totalAmount: basketTotal, itemCount: totalItems)
+                        modelContext.insert(newOrder)
+                    }
+
+                    // Always clear Basket
                     for product in products {
                         modelContext.delete(product)
                     }
@@ -108,10 +108,12 @@ struct ContentView: View {
                 })
             }
         }
-        .onAppear {
-            if viewModel == nil {
-                viewModel = ProductViewModel(modelContext: modelContext)
-            }
+    }
+
+    private func deleteProducts(offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(products[index])
         }
+        try? modelContext.save()
     }
 }
