@@ -6,35 +6,30 @@
 //
 
 import SwiftUI
-import Combine // Added to fix ObservableObject and @Published errors
+import Combine
+
+enum ClientBrand: String, CaseIterable, Identifiable {
+    case slate = "Slate (Pink)"
+    case ocean = "Luxe Ocean (Blue)"
+    case emerald = "Emerald Supply (Green)"
+    
+    var id: String { rawValue }
+    
+    var primaryColor: Color {
+        switch self {
+        case .slate: return Color(hex: "#FF007A")
+        case .ocean: return Color(hex: "#007AFF")
+        case .emerald: return Color(hex: "#10B981")
+        }
+    }
+}
 
 class ConfigManager: ObservableObject {
     static let shared = ConfigManager()
     
-    @Published var config: ThemeConfig
-    
-    init() {
-        // Default Mock Configuration (Pink Theme)
-        self.config = ThemeConfig(
-            brandName: "Slate",
-            primaryColorHex: "#FF007A",
-            secondaryColorHex: "#1C1C1E",
-            fontName: "System",
-            showWishlistFeature: true
-        )
-    }
+    @Published var selectedBrand: ClientBrand = .slate
     
     var primaryColor: Color {
-        Color(hex: config.primaryColorHex)
-    }
-    
-    func applyClientTheme(hex: String, brand: String) {
-        self.config = ThemeConfig(
-            brandName: brand,
-            primaryColorHex: hex,
-            secondaryColorHex: "#000000",
-            fontName: "System",
-            showWishlistFeature: true
-        )
+        selectedBrand.primaryColor
     }
 }

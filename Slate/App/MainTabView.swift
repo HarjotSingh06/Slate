@@ -1,17 +1,20 @@
-//
-//  MainTabView.swift
+
+
 //
 //  MainTabView.swift
 //  Slate
 //
 
+
 import SwiftUI
 import SwiftData
 
 struct MainTabView: View {
-    @Query private var products: [Product]
+    @EnvironmentObject private var theme: ConfigManager
+    @Query private var products: [Product] // 1. Query current products in basket
 
-    var totalItemsCount: Int {
+    // 2. Calculate total item count across all quantities
+    private var totalBasketCount: Int {
         products.reduce(0) { $0 + $1.quantity }
     }
 
@@ -19,23 +22,25 @@ struct MainTabView: View {
         TabView {
             CatalogueView()
                 .tabItem {
-                    Label("Shop", systemImage: "bag.fill")
+                    Label("Shop", systemImage: "storefront")
                 }
 
             ContentView()
                 .tabItem {
-                    Label("Basket", systemImage: "cart.fill")
+                    Label("Basket", systemImage: "cart")
                 }
-                .badge(totalItemsCount > 0 ? totalItemsCount : 0) // Attached to Basket tab
+                .badge(totalBasketCount > 0 ? totalBasketCount : 0) // 3. Dynamic Badge
 
-            OrderHistoryView()
+            OrdersView()
                 .tabItem {
-                    Label("Orders", systemImage: "clock.fill")
+                    Label("Bag", systemImage: "bag")
                 }
+
             ProfileView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label("Profile", systemImage: "person")
                 }
         }
+        .tint(theme.primaryColor)
     }
 }

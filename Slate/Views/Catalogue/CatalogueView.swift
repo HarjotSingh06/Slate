@@ -2,98 +2,78 @@
 //  CatalogueView.swift
 //  Slate
 //
+ 
 
 import SwiftUI
 import SwiftData
 
-struct CatalogueItem: Identifiable {
-    let id = UUID()
-    let name: String
-    let price: Double
-}
-
 struct CatalogueView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var viewModel: ProductViewModel?
-    @State private var searchText = ""
-    
-    private let hapticFeedback = UINotificationFeedbackGenerator()
-    let columns = [GridItem(.flexible()), GridItem(.flexible())]
-    
-    let shopItems: [CatalogueItem] = [
-        CatalogueItem(name: "Blue Shirt", price: 7.99),
-        CatalogueItem(name: "White Shoes", price: 9.99),
-        CatalogueItem(name: "Red Pants", price: 12.50),
-        CatalogueItem(name: "White Pants", price: 9.99)
+    @EnvironmentObject private var theme: ConfigManager
+    @Query private var products: [Product]
+
+    // Sample Shop Items
+    private let availableProducts: [(name: String, price: Double, imageName: String)] = [
+        ("Oversized Cotton Tee", 28.00, "tshirt.fill"),
+        ("Classic Denim Jacket", 65.00, "jacket.fill"),
+        ("Tailored Trousers", 45.00, "figure.walk"),
+        ("Minimalist Sneakers", 80.00, "shoe.fill")
     ]
-    
-    var filteredItems: [CatalogueItem] {
-        if searchText.isEmpty {
-            return shopItems
-        } else {
-            return shopItems.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-    }
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(filteredItems) { item in
-                        let tempProduct = Product(name: item.name, price: item.price)
-                        
-                        NavigationLink(destination: ProductDetailView(name: item.name, price: item.price)) {
-                            VStack(spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                    ForEach(availableProducts, id: \.name) { item in
+                        VStack(alignment: .leading, spacing: 8) {
+                            ZStack {
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.gray.opacity(0.1))
+                                    .fill(Color(.systemGray6))
                                     .frame(height: 120)
-                                    .overlay(
-                                        Image(systemName: tempProduct.iconName)
-                                            .font(.system(size: 44))
-                                            .foregroundColor(.black.opacity(0.8))
-                                    )
                                 
-                                Text(item.name)
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-                                
-                                Text("£\(item.price, specifier: "%.2f")")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                
-                                Button(action: {
-                                    hapticFeedback.notificationOccurred(.success)
-                                    viewModel?.addToBasket(name: item.name, price: item.price)
-                                }) {
-                                    Text("Add to Basket")
-                                        .frame(maxWidth: .infinity)
-                                        .fontWeight(.medium)
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .tint(.pink)
+                                Image(systemName: item.imageName)
+                                    .font(.system(size: 40))
+                                    .foregroundColor(theme.primaryColor)
                             }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.gray.opacity(0.2))
-                            )
+
+                            Text(item.name)
+                                .font(.subheadline)
+                                .bold()
+                                .lineLimit(1)
+
+                            HStack {
+                                Text("£\(item.price, specifier: "%.2f")")
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+
+                                Spacer()
+
+                                Button(action: { addToBasket(item: item) }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(theme.primaryColor)
+                                }
+                            }
                         }
-                        // Applying BorderlessButtonStyle to the parent card prevents
-                        // tapping 'Add to Basket' from firing the NavigationLink
-                        .buttonStyle(BorderlessButtonStyle())
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                     }
                 }
                 .padding()
             }
             .navigationTitle("Shop")
-            .searchable(text: $searchText, prompt: "Search clothes...")
         }
-        .onAppear {
-            if viewModel == nil {
-                viewModel = ProductViewModel(modelContext: modelContext)
-            } else {
-                viewModel?.fetchProducts()
-            }
+    }
+
+    private func addToBasket(item: (name: String, price: Double, imageName: String)) {
+        if let existingProduct = products.first(where: { $0.name == item.name }) {
+            existingProduct.quantity += 1
+        } else {
+            let newProduct = Product(name: item.name, price: item.price, quantity: 1)
+            modelContext.insert(newProduct)
         }
+        try? modelContext.save()
     }
 }
