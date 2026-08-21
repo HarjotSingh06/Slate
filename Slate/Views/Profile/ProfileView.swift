@@ -3,11 +3,14 @@
 //  Slate
 //
 
+
 import SwiftUI
 import SwiftData
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var theme: ConfigManager // 1. Added Theme Manager
+    
     @Query private var profiles: [UserProfile]
     
     @State private var fullName = ""
@@ -43,13 +46,13 @@ struct ProfileView: View {
                     VStack(spacing: 8) {
                         ZStack {
                             Circle()
-                                .fill(Color.pink.opacity(0.15))
+                                .fill(theme.primaryColor.opacity(0.15)) // 2. Dynamic Accent Color
                                 .frame(width: 72, height: 72)
                             
                             Text(fullName.isEmpty ? "SL" : initials)
                                 .font(.title2)
                                 .bold()
-                                .foregroundColor(.pink)
+                                .foregroundColor(theme.primaryColor) // 2. Dynamic Accent Color
                         }
                         
                         Text(fullName.isEmpty ? "Your Name" : fullName)
@@ -86,7 +89,7 @@ struct ProfileView: View {
                         Text(isProfileSaved ? "Update Profile" : "Save Profile")
                             .bold()
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .foregroundColor(.pink)
+                            .foregroundColor(theme.primaryColor) // 2. Dynamic Accent Color
                     }
                 }
                 

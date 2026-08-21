@@ -11,9 +11,12 @@ import Combine
 
 @main
 struct SlateApp: App {
+    @StateObject private var configManager = ConfigManager.shared
+
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .environmentObject(configManager)
         }
         .modelContainer(for: [Product.self, Order.self, UserProfile.self])
     }
