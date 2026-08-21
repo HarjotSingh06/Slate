@@ -3,6 +3,11 @@
 //  Slate
 //
 
+//
+//  ProductDetailView.swift
+//  Slate
+//
+
 import SwiftUI
 import SwiftData
 
@@ -11,6 +16,8 @@ struct ProductDetailView: View {
     let price: Double
     
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var theme: ConfigManager
+    
     @State private var viewModel: ProductViewModel?
     @State private var selectedSize = "M"
     @State private var addedToCartNotice = false
@@ -28,7 +35,7 @@ struct ProductDetailView: View {
                     .overlay(
                         Image(systemName: Product(name: name, price: price).iconName)
                             .font(.system(size: 90))
-                            .foregroundColor(.black.opacity(0.75))
+                            .foregroundColor(theme.primaryColor)
                     )
                 
                 VStack(alignment: .leading, spacing: 12) {
@@ -40,7 +47,7 @@ struct ProductDetailView: View {
                         Text("£\(price, specifier: "%.2f")")
                             .font(.title2)
                             .bold()
-                            .foregroundColor(.pink)
+                            .foregroundColor(theme.primaryColor)
                     }
                     
                     Text("Premium heavy-weight cotton build designed for standard fit and everyday durability.")
@@ -59,7 +66,7 @@ struct ProductDetailView: View {
                                 Text(size)
                                     .fontWeight(.semibold)
                                     .frame(width: 50, height: 50)
-                                    .background(selectedSize == size ? Color.pink : Color.gray.opacity(0.12))
+                                    .background(selectedSize == size ? theme.primaryColor : Color.gray.opacity(0.12))
                                     .foregroundColor(selectedSize == size ? .white : .primary)
                                     .cornerRadius(10)
                             }
@@ -93,7 +100,7 @@ struct ProductDetailView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .background(addedToCartNotice ? Color.green : Color.pink)
+                .background(addedToCartNotice ? Color.green : theme.primaryColor)
                 .foregroundColor(.white)
                 .cornerRadius(12)
             }
