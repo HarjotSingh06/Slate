@@ -4,81 +4,71 @@
 //
 
 
+//
+//  ProfileView.swift
+//  Slate
+//
+
 import SwiftUI
 import SwiftData
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var theme: ConfigManager
+        @EnvironmentObject private var theme: ConfigManager
+        @Query private var userProfiles: [UserProfile]
+        
+        @AppStorage("hasSeenWelcome") private var hasSeenWelcome = true
+        
+        @State private var fullName: String = ""
+        @State private var email: String = ""
+        @State private var addressLine1: String = ""
+        @State private var city: String = ""
+        @State private var postCode: String = ""
+        
+        @State private var showSaveAlert = false
+        @State private var showSignOutAlert = false
     
-    @Query private var profiles: [UserProfile]
-    
-    @State private var fullName = ""
-    @State private var email = ""
-    @State private var addressLine1 = ""
-    @State private var city = ""
-    @State private var postCode = ""
-    @State private var showSaveAlert = false
-    @State private var showSignOutAlert = false
-
-    private var activeProfile: UserProfile? {
-        profiles.first
-    }
-
-    private var isProfileSaved: Bool {
-        activeProfile != nil
-    }
-
-    private var initials: String {
-        let formatter = PersonNameComponentsFormatter()
-        if let components = formatter.personNameComponents(from: fullName) {
-            formatter.style = .abbreviated
-            return formatter.string(from: components)
-        }
-        return "SL"
-    }
-
     var body: some View {
         NavigationStack {
-            List {
-                // Header Profile Card
+            Form {
+                // Profile Header
                 Section {
-                    VStack(spacing: 8) {
+                    HStack(spacing: 16) {
                         ZStack {
                             Circle()
                                 .fill(theme.primaryColor.opacity(0.15))
-                                .frame(width: 72, height: 72)
+                                .frame(width: 60, height: 60)
                             
-                            Text(fullName.isEmpty ? "SL" : initials)
+                            Text(userInitials)
                                 .font(.title2)
                                 .bold()
                                 .foregroundColor(theme.primaryColor)
                         }
                         
-                        Text(fullName.isEmpty ? "Your Name" : fullName)
-                            .font(.headline)
-                        
-                        Text(email.isEmpty ? "add.email@example.com" : email)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(fullName.isEmpty ? "Your Name" : fullName)
+                                .font(.headline)
+                            Text(email.isEmpty ? "add.email@example.com" : email)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
                 }
-                .listRowBackground(Color.clear)
-
-                // White Label Theme Picker
-                Section("White Label Theme") {
+                
+                // White Label Theme Switcher
+                Section(header: Text("White Label Theme")) {
                     Picker("Active Client", selection: $theme.selectedBrand) {
-                        ForEach(ClientBrand.allCases) { brand in
+                        ForEach(ClientBrand.allCases, id: \.self) { brand in
                             Text(brand.rawValue).tag(brand)
                         }
                     }
                     .pickerStyle(.menu)
+                    .tint(theme.primaryColor)
                 }
-
+                
                 // Personal Details
-                Section("Personal Details") {
+                Section(header: Text("Personal Details")) {
                     TextField("Full Name", text: $fullName)
                     TextField("Email", text: $email)
                         .keyboardType(.emailAddress)
@@ -86,25 +76,34 @@ struct ProfileView: View {
                 }
                 
                 // Shipping Address
-                Section("Shipping Address") {
+                Section(header: Text("Shipping Address")) {
                     TextField("Address Line 1", text: $addressLine1)
                     TextField("City", text: $city)
                     TextField("Postcode", text: $postCode)
-                        .autocapitalization(.allCharacters)
                 }
                 
-                // Save Action
+                // Save Actions
                 Section {
                     Button(action: saveProfile) {
-                        Text(isProfileSaved ? "Update Profile" : "Save Profile")
-                            .bold()
-                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text(userProfiles.isEmpty ? "Save Profile" : "Update Profile")
+                            .font(.headline)
                             .foregroundColor(theme.primaryColor)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                }
+                
+                // Sign Out
+                Section {
+                    Button(action: { showSignOutAlert = true }) {
+                        Text("Sign Out")
+                            .font(.headline)
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
                 
                 // App Information
-                Section("App Information") {
+                Section(header: Text("App Information")) {
                     HStack {
                         Text("Version")
                         Spacer()
@@ -112,52 +111,48 @@ struct ProfileView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                
-                // Sign Out Section
-                if isProfileSaved {
-                    Section {
-                        Button(action: { showSignOutAlert = true }) {
-                            Text("Sign Out")
-                                .bold()
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .foregroundColor(.red)
-                        }
-                    }
-                }
             }
-            .listStyle(.insetGrouped)
             .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear(perform: loadProfile)
+            .onAppear(perform: loadProfileData)
             .alert("Profile Saved", isPresented: $showSaveAlert) {
-                Button("OK", role: .cancel) {}
+                Button("OK", role: .cancel) { }
             }
             .alert("Sign Out", isPresented: $showSignOutAlert) {
-                Button("Sign Out", role: .destructive, action: signOut)
-                Button("Cancel", role: .cancel) {}
+                Button("Cancel", role: .cancel) { }
+                Button("Sign Out", role: .destructive, action: performSignOut)
             } message: {
-                Text("Are you sure you want to sign out? This will clear your saved personal information and basket.")
+                Text("Are you sure you want to sign out? This will clear your saved personal information, basket, and order history.")
             }
         }
     }
-
-    private func loadProfile() {
-        if let profile = activeProfile {
-            fullName = profile.fullName
-            email = profile.email
-            addressLine1 = profile.addressLine1
-            city = profile.city
-            postCode = profile.postCode
+    
+    private var userInitials: String {
+        let components = fullName.split(separator: " ")
+        if components.count >= 2, let first = components.first?.first, let last = components.last?.first {
+            return "\(first)\(last)".uppercased()
+        } else if let first = fullName.first {
+            return String(first).uppercased()
+        }
+        return "SL"
+    }
+    
+    private func loadProfileData() {
+        if let existing = userProfiles.first {
+            fullName = existing.fullName
+            email = existing.email
+            addressLine1 = existing.addressLine1
+            city = existing.city
+            postCode = existing.postCode
         }
     }
-
+    
     private func saveProfile() {
-        if let profile = activeProfile {
-            profile.fullName = fullName
-            profile.email = email
-            profile.addressLine1 = addressLine1
-            profile.city = city
-            profile.postCode = postCode
+        if let existing = userProfiles.first {
+            existing.fullName = fullName
+            existing.email = email
+            existing.addressLine1 = addressLine1
+            existing.city = city
+            existing.postCode = postCode
         } else {
             let newProfile = UserProfile(
                 fullName: fullName,
@@ -168,38 +163,24 @@ struct ProfileView: View {
             )
             modelContext.insert(newProfile)
         }
-        
         try? modelContext.save()
         showSaveAlert = true
     }
-
-    private func signOut() {
-        if let profile = activeProfile {
-            modelContext.delete(profile)
-        }
-        
-        do {
-            let fetchProducts = FetchDescriptor<Product>()
-            let products = try modelContext.fetch(fetchProducts)
-            for product in products {
-                modelContext.delete(product)
-            }
-            
-            let fetchOrders = FetchDescriptor<Order>()
-            let orders = try modelContext.fetch(fetchOrders)
-            for order in orders {
-                modelContext.delete(order)
-            }
-            
-            try modelContext.save()
-        } catch {
-            print("Failed to clear data on sign out: \(error)")
-        }
+    
+    private func performSignOut() {
+        try? modelContext.delete(model: UserProfile.self)
+        try? modelContext.delete(model: Product.self)
+        try? modelContext.delete(model: Order.self)
+        try? modelContext.save()
         
         fullName = ""
         email = ""
         addressLine1 = ""
         city = ""
         postCode = ""
+        
+        withAnimation {
+            hasSeenWelcome = false
+        }
     }
 }
