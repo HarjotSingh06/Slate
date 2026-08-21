@@ -5,19 +5,30 @@
 //  Created by Harjot Singh on 08/05/2026.
 //
 
+
 import SwiftUI
 import SwiftData
-import Combine
 
 @main
 struct SlateApp: App {
-    @StateObject private var configManager = ConfigManager.shared
+    @StateObject private var theme = ConfigManager.shared
+    @AppStorage("hasSeenWelcome") private var hasSeenWelcome = false
 
     var body: some Scene {
         WindowGroup {
-            MainTabView()
-                .environmentObject(configManager)
+            Group {
+                if !hasSeenWelcome {
+                    WelcomeView(onGetStarted: {
+                        withAnimation {
+                            hasSeenWelcome = true
+                        }
+                    })
+                } else {
+                    MainTabView()
+                }
+            }
+            .environmentObject(theme)
         }
-        .modelContainer(for: [Product.self, Order.self, UserProfile.self])
+        .modelContainer(for: [Product.self, UserProfile.self, Order.self])
     }
 }
