@@ -9,3 +9,4 @@ A dynamic, white-label iOS e-commerce application built with SwiftUI, SwiftData,
 * **Local Data Persistence:** SwiftData integration for managing Basket items, Orders, and User Profiles.
 * **Biometric Authentication:** LocalAuthentication framework implementation for Face ID checkout flows.
 * **Declarative UI:** Built entirely with SwiftUI using clean navigation from Catalogue to Product Detail and Basket.
+* **Automated Testing:** Covered key business logic and dynamic theme switching with an `XCTest` suite.
