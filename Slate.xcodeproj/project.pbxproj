@@ -6,11 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		141BC429303B3F4F00644277 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 144E9D3C2FADF82C0013378E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 144E9D432FADF82C0013378E;
+			remoteInfo = Slate;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		141BC425303B3F4F00644277 /* SlateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SlateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		144E9D442FADF82C0013378E /* Slate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Slate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		141BC426303B3F4F00644277 /* SlateTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SlateTests;
+			sourceTree = "<group>";
+		};
 		144E9D462FADF82C0013378E /* Slate */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Slate;
@@ -19,6 +35,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		141BC422303B3F4F00644277 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		144E9D412FADF82C0013378E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				144E9D462FADF82C0013378E /* Slate */,
+				141BC426303B3F4F00644277 /* SlateTests */,
 				144E9D452FADF82C0013378E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				144E9D442FADF82C0013378E /* Slate.app */,
+				141BC425303B3F4F00644277 /* SlateTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +73,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		141BC424303B3F4F00644277 /* SlateTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 141BC42D303B3F4F00644277 /* Build configuration list for PBXNativeTarget "SlateTests" */;
+			buildPhases = (
+				141BC421303B3F4F00644277 /* Sources */,
+				141BC422303B3F4F00644277 /* Frameworks */,
+				141BC423303B3F4F00644277 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				141BC42A303B3F4F00644277 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				141BC426303B3F4F00644277 /* SlateTests */,
+			);
+			name = SlateTests;
+			packageProductDependencies = (
+			);
+			productName = SlateTests;
+			productReference = 141BC425303B3F4F00644277 /* SlateTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		144E9D432FADF82C0013378E /* Slate */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 144E9D512FADF82E0013378E /* Build configuration list for PBXNativeTarget "Slate" */;
@@ -77,9 +125,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					141BC424303B3F4F00644277 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 144E9D432FADF82C0013378E;
+					};
 					144E9D432FADF82C0013378E = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -100,11 +152,19 @@
 			projectRoot = "";
 			targets = (
 				144E9D432FADF82C0013378E /* Slate */,
+				141BC424303B3F4F00644277 /* SlateTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		141BC423303B3F4F00644277 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		144E9D422FADF82C0013378E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +175,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		141BC421303B3F4F00644277 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		144E9D402FADF82C0013378E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +191,57 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		141BC42A303B3F4F00644277 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 144E9D432FADF82C0013378E /* Slate */;
+			targetProxy = 141BC429303B3F4F00644277 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		141BC42B303B3F4F00644277 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.harjot.SlateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Slate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Slate";
+			};
+			name = Debug;
+		};
+		141BC42C303B3F4F00644277 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.harjot.SlateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Slate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Slate";
+			};
+			name = Release;
+		};
 		144E9D4F2FADF82E0013378E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -259,6 +376,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -291,6 +409,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -311,6 +430,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		141BC42D303B3F4F00644277 /* Build configuration list for PBXNativeTarget "SlateTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				141BC42B303B3F4F00644277 /* Debug */,
+				141BC42C303B3F4F00644277 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		144E9D3F2FADF82C0013378E /* Build configuration list for PBXProject "Slate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
