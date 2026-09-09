@@ -92,7 +92,8 @@ struct CatalogueView: View {
                             NavigationLink(
                                 destination: ProductDetailView(
                                     name: item.name,
-                                    price: item.price
+                                    price: item.price,
+                                    imageName: item.imageName
                                 )
                             ) {
                                 ProductCardView(

@@ -14,6 +14,7 @@ import SwiftData
 struct ProductDetailView: View {
     let name: String
     let price: Double
+    let imageName: String
     
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var theme: ConfigManager
@@ -29,14 +30,17 @@ struct ProductDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Large Visual Canvas
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.gray.opacity(0.08))
-                    .frame(height: 280)
-                    .overlay(
-                        Image(systemName: Product(name: name, price: price).iconName)
-                            .font(.system(size: 90))
-                            .foregroundColor(theme.primaryColor)
-                    )
+                ZStack {
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(Color(.secondarySystemBackground))
+
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(24)
+                }
+                .frame(height: 380)
+                .padding(.horizontal)
                 
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
@@ -57,7 +61,7 @@ struct ProductDetailView: View {
                     Divider().padding(.vertical, 8)
                     
                     // Size Selector
-                    Text("Select Size")
+                    Text("Select size")
                         .font(.headline)
                     
                     HStack(spacing: 12) {
