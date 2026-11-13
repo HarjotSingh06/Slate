@@ -2,7 +2,10 @@
 
 A dynamic, white-label iOS e-commerce application built with SwiftUI, SwiftData, and dynamic theme reskinning.
 
-![Slate App Demo](Demo.gif)
+
+https://github.com/user-attachments/assets/3dca9f85-d4dd-4c33-a732-9d4235b0a93c
+
+
 
 ## Key Features & Architecture
 * **Dynamic White-Label Reskinning:** Real-time app-wide theme switching driven by `ConfigManager` and Combine.
